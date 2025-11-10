@@ -42,7 +42,7 @@ async function fetchData() {
   rows.forEach(row => {
     const [region, date, hdd, cdd] = row.split(",");
     if (!data[region]) data[region] = { days: [], hdd: [], cdd: [] };
-    data[region].days.push(Number(date));
+    data[region].days.push(String(date));
     data[region].hdd.push(Number(hdd));
     data[region].cdd.push(Number(cdd));
   });
