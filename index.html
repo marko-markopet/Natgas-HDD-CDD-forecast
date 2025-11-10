@@ -56,7 +56,7 @@ async function drawChart() {
   const regions = Object.keys(data);
 
   // Generujeme labels – poradové čísla dní
-  const labels = data[regions[0]].days.map(d => "Day " + d);
+  const labels = data[regions[0]].days.map(d => "" + d);
 
   const datasets = [];
   const colors = [
