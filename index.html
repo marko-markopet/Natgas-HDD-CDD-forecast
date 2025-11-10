@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HDD/CDD Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    canvas { background: #f9f9f9; border: 1px solid #ccc; }
+</style>
+</head>
+<body>
+
+<h2>HDD/CDD Dashboard</h2>
+<canvas id="hddCddChart" width="1000" height="400"></canvas>
+
+<script>
+// URL Google Sheet CSV (publikovaný ako CSV)
+const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQxuCEA6n158C1ENeHT-tRC3fkzJhQHYEs35-EyzVfekXR31vEa7s0Aq4w9knwiE9N2kNt0p8uRB8U7/pubhtml";
+
+// Funkcia na načítanie a spracovanie CSV
+async function fetchData() {
+    const res = await fetch(csvUrl);
+    const text = await res.text();
+    const rows = text.trim().split("\n").slice(1); // preskočíme header
+    const data = {};
+
+    rows.forEach(row => {
+        const [region, date, hdd, cdd] = row.split(",");
+        if (!data[region]) data[region] = { dates: [], hdd: [], cdd: [] };
+        data[region].dates.push(date);
+        data[region].hdd.push(Number(hdd));
+        data[region].cdd.push(Number(cdd));
+    });
+
+    return data;
+}
+
+// Funkcia na vykreslenie grafu
+async function drawChart() {
+    const data = await fetchData();
+    const regions = Object.keys(data);
+
+    const datasets = [];
+    const colors = [
+        'rgba(255, 99, 132, 0.5)',
+        'rgba(54, 162, 235, 0.5)',
+        'rgba(255, 206, 86, 0.5)',
+        'rgba(75, 192, 192, 0.5)',
+        'rgba(153, 102, 255, 0.5)'
+    ];
+
+    regions.forEach((region, i) => {
+        // HDD – červené
+        datasets.push({
+            label: region + " HDD",
+            data: data[region].hdd,
+            backgroundColor: colors[i % colors.length],
+            borderColor: colors[i % colors.length],
+            type: 'bar',
+            order: 1
+        });
+        // CDD – modré, zobrazované „nadol“ (negatívne)
+        datasets.push({
+            label: region + " CDD",
+            data: data[region].cdd.map(v => -v),
+            backgroundColor: colors[(i + 1) % colors.length],
+            borderColor: colors[(i + 1) % colors.length],
+            type: 'bar',
+            order: 1
+        });
+    });
+
+    const ctx = document.getElementById('hddCddChart').getContext('2d');
+    new Chart(ctx, {
+        data: {
+            labels: data[regions[0]].dates,
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'top' },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ": " + Math.abs(context.raw);
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) { return Math.abs(value); }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Spustenie
+drawChart();
+</script>
+
+</body>
+</html>
