@@ -40,9 +40,9 @@ async function fetchData() {
   const data = {};
 
   rows.forEach(row => {
-    const [region, dayIndex, hdd, cdd] = row.split(",");
+    const [region, date, hdd, cdd] = row.split(",");
     if (!data[region]) data[region] = { days: [], hdd: [], cdd: [] };
-    data[region].days.push(Number(dayIndex));
+    data[region].days.push(Number(date));
     data[region].hdd.push(Number(hdd));
     data[region].cdd.push(Number(cdd));
   });
