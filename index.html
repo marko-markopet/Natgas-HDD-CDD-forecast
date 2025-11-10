@@ -55,34 +55,61 @@ async function drawChart() {
   const data = await fetchData();
   const regions = Object.keys(data);
 
-  // Generujeme labels – poradové čísla dní
-  const labels = data[regions[0]].days.map(d => "" + d);
+  // Labels = dátumy
+  const labels = data[regions[0]].days;
 
   const datasets = [];
-  const colors = [
-    'rgba(255, 99, 132, 0.6)',
-    'rgba(54, 162, 235, 0.6)',
-    'rgba(255, 206, 86, 0.6)',
-    'rgba(75, 192, 192, 0.6)',
-    'rgba(153, 102, 255, 0.6)'
-  ];
 
-  regions.forEach((region, i) => {
-    // HDD (kladné)
+  regions.forEach((region) => {
+    let hddColor, cddColor;
+
+    // Farby pre jednotlivé regióny
+    switch(region) {
+      case "Chicago":
+        hddColor = 'rgba(255, 150, 150, 0.6)';
+        cddColor = 'rgba(255, 0, 0, 0.6)';
+        break;
+      case "New York":
+        hddColor = 'rgba(150, 200, 255, 0.6)';
+        cddColor = 'rgba(0, 100, 255, 0.6)';
+        break;
+      case "Houston":
+        hddColor = 'rgba(150, 255, 150, 0.6)';
+        cddColor = 'rgba(0, 150, 0, 0.6)';
+        break;
+      case "Denver":
+        hddColor = 'rgba(255, 200, 150, 0.6)';
+        cddColor = 'rgba(255, 100, 0, 0.6)';
+        break;
+      case "Los Angeles":
+        hddColor = 'rgba(200, 150, 255, 0.6)';
+        cddColor = 'rgba(100, 0, 255, 0.6)';
+        break;
+      case "All Regions Sum":
+        hddColor = 'rgba(0,0,0,0.8)';      // čierna
+        cddColor = 'rgba(120,120,120,0.8)'; // sivá
+        break;
+      default:
+        hddColor = 'rgba(150,150,150,0.6)';
+        cddColor = 'rgba(100,100,100,0.6)';
+    }
+
+    // HDD
     datasets.push({
       label: region + " HDD",
       data: data[region].hdd,
-      backgroundColor: colors[i % colors.length],
-      borderColor: colors[i % colors.length],
+      backgroundColor: hddColor,
+      borderColor: hddColor,
       borderWidth: 1,
       type: 'bar'
     });
-    // CDD (záporné)
+
+    // CDD
     datasets.push({
       label: region + " CDD",
-      data: data[region].cdd.map(v => -v),
-      backgroundColor: colors[(i + 1) % colors.length],
-      borderColor: colors[(i + 1) % colors.length],
+      data: data[region].cdd,
+      backgroundColor: cddColor,
+      borderColor: cddColor,
       borderWidth: 1,
       type: 'bar'
     });
@@ -100,20 +127,17 @@ async function drawChart() {
         legend: { position: 'top' },
         tooltip: {
           callbacks: {
-            label: (ctx) => `${ctx.dataset.label}: ${Math.abs(ctx.raw).toFixed(1)}`
+            label: (ctx) => `${ctx.dataset.label}: ${ctx.raw.toFixed(1)}`
           }
         }
       },
       scales: {
         y: {
           beginAtZero: true,
-          ticks: {
-            callback: value => Math.abs(value),
-          },
           title: { display: true, text: "Degree Days (HDD/CDD)" }
         },
         x: {
-          title: { display: true, text: "Day Index" }
+          title: { display: true, text: "Date" }
         }
       }
     }
