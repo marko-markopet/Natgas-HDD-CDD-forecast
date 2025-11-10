@@ -1,41 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>HDD/CDD Dashboard</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    canvas { background: #f9f9f9; border: 1px solid #ccc; }
-</style>
-</head>
-<body>
-
-<h2>HDD/CDD Dashboard</h2>
-<canvas id="hddCddChart" width="1000" height="400"></canvas>
-
-<script>
-// URL Google Sheet CSV (publikovaný ako CSV)
-const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQxuCEA6n158C1ENeHT-tRC3fkzJhQHYEs35-EyzVfekXR31vEa7s0Aq4w9knwiE9N2kNt0p8uRB8U7/pubhtml";
-
-// Funkcia na načítanie a spracovanie CSV
-async function fetchData() {
-    const res = await fetch(csvUrl);
-    const text = await res.text();
-    const rows = text.trim().split("\n").slice(1); // preskočíme header
-    const data = {};
-
-    rows.forEach(row => {
-        const [region, date, hdd, cdd] = row.split(",");
-        if (!data[region]) data[region] = { dates: [], hdd: [], cdd: [] };
-        data[region].dates.push(date);
-        data[region].hdd.push(Number(hdd));
-        data[region].cdd.push(Number(cdd));
-    });
-
-    return data;
-}
-
 // Funkcia na vykreslenie grafu
 async function drawChart() {
     const data = await fetchData();
@@ -101,12 +63,3 @@ async function drawChart() {
         }
     });
 }
-
-}
-
-// Spustenie
-drawChart();
-</script>
-
-</body>
-</html>
