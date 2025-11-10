@@ -41,6 +41,9 @@ async function drawChart() {
     const data = await fetchData();
     const regions = Object.keys(data);
 
+    // Použijeme poradové číslo dňa ako labely
+    const labels = data[regions[0]].dates.map(d => "Day " + d);
+
     const datasets = [];
     const colors = [
         'rgba(255, 99, 132, 0.5)',
@@ -51,7 +54,6 @@ async function drawChart() {
     ];
 
     regions.forEach((region, i) => {
-        // HDD – červené
         datasets.push({
             label: region + " HDD",
             data: data[region].hdd,
@@ -60,7 +62,6 @@ async function drawChart() {
             type: 'bar',
             order: 1
         });
-        // CDD – modré, zobrazované „nadol“ (negatívne)
         datasets.push({
             label: region + " CDD",
             data: data[region].cdd.map(v => -v),
@@ -74,7 +75,7 @@ async function drawChart() {
     const ctx = document.getElementById('hddCddChart').getContext('2d');
     new Chart(ctx, {
         data: {
-            labels: data[regions[0]].dates,
+            labels: labels,
             datasets: datasets
         },
         options: {
@@ -99,6 +100,8 @@ async function drawChart() {
             }
         }
     });
+}
+
 }
 
 // Spustenie
